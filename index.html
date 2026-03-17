@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario Financiero PRO 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080d;--s1:#0d0f1a;--s2:#12141f;--s3:#181a28;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);--border3:rgba(255,255,255,0.18);
+  --text:#eceaf5;--muted:#6b6a80;--muted2:#9998b0;
+  --accent:#e8ff47;--accentd:#b8cc20;
+  --blue:#4d9fff;--teal:#3de0b8;--orange:#ff8c42;--pink:#ff5fa0;--purple:#a78bfa;--green:#4ade80;
+  --c-earnings:#4d9fff;--c-macro:#3de0b8;--c-fed:#ff8c42;--c-vto:#ff5fa0;--c-idx:#a78bfa;--c-div:#4ade80;
+  --bg-earnings:rgba(77,159,255,0.1);--bg-macro:rgba(61,224,184,0.09);--bg-fed:rgba(255,140,66,0.09);
+  --bg-vto:rgba(255,95,160,0.09);--bg-idx:rgba(167,139,250,0.09);--bg-div:rgba(74,222,128,0.09);
+}
+body{background:var(--bg);color:var(--text);font-family:'Bricolage Grotesque',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 20% 20%,rgba(77,159,255,0.04),transparent 50%),radial-gradient(circle at 80% 80%,rgba(167,139,250,0.04),transparent 50%);pointer-events:none;z-index:0}
+
+.app{display:grid;grid-template-columns:260px 1fr;grid-template-rows:auto 1fr;min-height:100vh;position:relative;z-index:1}
+.topbar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.5rem;border-bottom:1px solid var(--border);background:rgba(7,8,13,0.92);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;flex-wrap:wrap;gap:10px}
+.sidebar{border-right:1px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;max-height:calc(100vh - 54px);position:sticky;top:54px}
+.main{padding:1.5rem;overflow-y:auto;min-width:0}
+
+/* TOPBAR */
+.logo{display:flex;align-items:baseline;gap:8px}
+.logo-title{font-size:19px;font-weight:800;letter-spacing:-.03em}
+.logo-title span{color:var(--accent)}
+.logo-tag{font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(232,255,71,0.12);color:var(--accent);border:1px solid rgba(232,255,71,0.25);border-radius:4px;padding:2px 7px;letter-spacing:.1em}
+.top-actions{display:flex;align-items:center;gap:8px}
+.btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1px solid var(--border2);background:var(--s2);color:var(--text)}
+.btn:hover{background:var(--s3);border-color:var(--border3)}
+.btn-accent{background:var(--accent);color:#07080d;border-color:transparent}
+.btn-accent:hover{background:#d4eb30;transform:translateY(-1px)}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+.view-toggle{display:flex;background:var(--s2);border:1px solid var(--border2);border-radius:8px;padding:3px;gap:2px}
+.vbtn{padding:5px 14px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;background:transparent;color:var(--muted2);font-family:'Bricolage Grotesque',sans-serif}
+.vbtn.active{background:var(--s3);color:var(--text);border:1px solid var(--border2)}
+
+/* SIDEBAR */
+.sidebar-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;padding:0 6px;margin-bottom:4px}
+.filter-group,.index-group{display:flex;flex-direction:column;gap:2px}
+.filter-item,.index-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--muted2);border:1px solid transparent;transition:all .15s;user-select:none}
+.filter-item:hover,.index-item:hover{background:var(--s2);color:var(--text)}
+.filter-item.active,.index-item.active{background:var(--s2);border-color:var(--border2);color:var(--text)}
+.filter-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.filter-count{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--s3);color:var(--muted);padding:1px 6px;border-radius:10px}
+.filter-item.active .filter-count,.index-item.active .filter-count{color:var(--muted2)}
+.idx-badge{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500}
+.badge-sp{background:rgba(77,159,255,.15);color:var(--blue)}
+.badge-nq{background:rgba(167,139,250,.15);color:var(--purple)}
+.badge-mv{background:rgba(61,224,184,.15);color:var(--teal)}
+.stats-mini{display:flex;flex-direction:column;gap:3px}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:7px 8px;background:var(--s2);border-radius:7px;border:1px solid var(--border)}
+.stat-row-label{font-size:12px;color:var(--muted2)}
+.stat-row-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)}
+
+/* TICKER STRIP */
+.ticker-strip{background:var(--s1);border-bottom:1px solid var(--border);padding:8px 1.5rem;display:flex;gap:1.5rem;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.ticker-strip::-webkit-scrollbar{display:none}
+.ticker-item{display:flex;align-items:center;gap:6px;font-size:12px;flex-shrink:0}
+.ticker-sym{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--text)}
+.ticker-price{font-family:'JetBrains Mono',monospace;color:var(--muted2)}
+.ticker-chg{font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 5px;border-radius:3px}
+.ticker-chg.up{background:rgba(74,222,128,.12);color:var(--green)}
+.ticker-chg.dn{background:rgba(255,95,160,.12);color:var(--pink)}
+.ticker-loading{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);font-style:italic}
+
+/* AI BAR */
+.ai-bar{background:var(--s1);border:1px solid var(--border2);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem}
+.ai-bar-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ai-icon{width:32px;height:32px;border-radius:8px;background:rgba(232,255,71,.1);border:1px solid rgba(232,255,71,.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:var(--accent)}
+.ai-text-block{flex:1}
+.ai-title{font-size:13px;font-weight:700;color:var(--text)}
+.ai-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+.ai-input-row{display:flex;gap:8px}
+.ai-inp{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:7px;padding:9px 14px;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.ai-inp:focus{border-color:var(--accent)}
+.ai-inp::placeholder{color:var(--muted)}
+.ai-result{margin-top:10px;padding:14px;background:var(--s2);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--muted2);line-height:1.65;display:none}
+.ai-result.show{display:block}
+.ai-result.loading{color:var(--muted);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+/* AI inner styles */
+.ai-result .ai-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}
+.ai-result .ai-table th{text-align:left;padding:5px 10px;border-bottom:1px solid var(--border2);font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.ai-result .ai-table td{padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted2)}
+.ai-result .ai-table td:first-child{color:var(--text);font-weight:600}
+.ai-result .ai-table tr:last-child td{border-bottom:none}
+.ai-result .ai-link{color:var(--blue);text-decoration:none}
+.ai-result .ai-link:hover{text-decoration:underline}
+.ai-result strong{color:var(--text)}
+.ai-result p{margin-bottom:8px}
+.ai-result p:last-child{margin-bottom:0}
+.ai-error{color:var(--pink)!important}
+
+/* SEARCH */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--border2);border-radius:8px;padding:0 14px;margin-bottom:1.5rem;transition:border-color .15s}
+.search-bar:focus-within{border-color:var(--accent)}
+.search-bar svg{width:14px;height:14px;color:var(--muted);flex-shrink:0}
+.search-bar input{flex:1;background:transparent;border:none;outline:none;font-family:'Bricolage Grotesque',sans-serif;font-size:13px;color:var(--text);padding:10px 0}
+.search-bar input::placeholder{color:var(--muted)}
+
+/* MONTH NAV */
+.month-nav{display:flex;align-items:center;gap:8px;margin-bottom:1.5rem}
+.mnav-btn{width:34px;height:34px;background:var(--s2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mnav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.month-title{font-size:22px;font-weight:800;letter-spacing:-.02em;min-width:220px;text-align:center}
+.today-btn{margin-left:auto;font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;background:var(--s2);border:1px solid var(--border2);color:var(--muted2);cursor:pointer;font-family:'Bricolage Grotesque',sans-serif;transition:all .15s}
+.today-btn:hover{color:var(--text);border-color:var(--border3)}
+
+/* LEGEND */
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 14px;background:var(--s1);border:1px solid var(--border);border-radius:8px;margin-bottom:1.5rem}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2)}
+.leg-d{width:8px;height:8px;border-radius:2px}
+
+/* CALENDAR */
+.cal-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem}
+.cal-head-row{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-day-head{background:var(--s1);padding:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);text-align:center;border-bottom:1px solid var(--border)}
+.cal-body{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border)}
+.cal-cell{background:var(--s1);min-height:108px;padding:8px;cursor:default;transition:background .15s;position:relative}
+.cal-cell.has-ev{cursor:pointer}
+.cal-cell.has-ev:hover{background:var(--s2)}
+.cal-cell.empty{background:var(--bg);opacity:.3}
+.cal-cell.weekend{background:rgba(255,255,255,0.012)}
+.cal-cell.today{outline:2px solid var(--accent);outline-offset:-2px}
+.cal-cell.past{opacity:.72}
+.day-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.day-n{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);font-weight:500}
+.cal-cell.has-ev .day-n{color:var(--text)}
+.today .day-n{background:var(--accent);color:#07080d;border-radius:4px;padding:1px 5px;font-weight:700}
+.past-ind{width:5px;height:5px;border-radius:50%;background:var(--teal);display:none}
+.cal-cell.past.has-ev .past-ind{display:block}
+.ev-pills{display:flex;flex-direction:column;gap:2px}
+.ev-pill{font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:.02em}
+.ev-pill.earnings{background:var(--bg-earnings);color:var(--c-earnings);border-left:2px solid var(--c-earnings)}
+.ev-pill.macro{background:var(--bg-macro);color:var(--c-macro);border-left:2px solid var(--c-macro)}
+.ev-pill.fed{background:var(--bg-fed);color:var(--c-fed);border-left:2px solid var(--c-fed)}
+.ev-pill.vto{background:var(--bg-vto);color:var(--c-vto);border-left:2px solid var(--c-vto)}
+.ev-pill.idx{background:var(--bg-idx);color:var(--c-idx);border-left:2px solid var(--c-idx)}
+.ev-pill.div{background:var(--bg-div);color:var(--c-div);border-left:2px solid var(--c-div)}
+.more-ev{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);padding:1px 4px;margin-top:1px}
+
+/* TABLE */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2rem}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--s2);border-bottom:1px solid var(--border2)}
+thead th{padding:10px 14px;text-align:left;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;cursor:pointer;user-select:none;white-space:nowrap}
+thead th:hover,thead th.sorted{color:var(--muted2)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--s2)}
+td{padding:8px 14px;vertical-align:middle}
+.td-company{font-weight:600;color:var(--text)}
+.td-ticker{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);margin-top:2px}
+.td-date{font-family:'JetBrains Mono',monospace;font-size:12px;white-space:nowrap}
+.td-date.past{color:var(--teal)}
+.td-amount{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--green)}
+.td-yield{font-size:12px;color:var(--muted2)}
+.cat-tag{display:inline-flex;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;padding:2px 7px;border-radius:4px;font-weight:500;white-space:nowrap}
+.cat-tag.earnings{background:var(--bg-earnings);color:var(--c-earnings)}
+.cat-tag.macro{background:var(--bg-macro);color:var(--c-macro)}
+.cat-tag.fed{background:var(--bg-fed);color:var(--c-fed)}
+.cat-tag.div{background:var(--bg-div);color:var(--c-div)}
+.cat-tag.vto{background:var(--bg-vto);color:var(--c-vto)}
+.cat-tag.idx{background:var(--bg-idx);color:var(--c-idx)}
+.idx-tag{display:inline-flex;font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;margin-right:3px}
+.idx-tag.sp{background:rgba(77,159,255,.12);color:var(--blue)}
+.idx-tag.nq{background:rgba(167,139,250,.12);color:var(--purple)}
+.idx-tag.mv{background:rgba(61,224,184,.12);color:var(--teal)}
+.table-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.page-info{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+.page-btns{display:flex;gap:4px}
+.page-btn{padding:4px 10px;border-radius:5px;font-size:12px;background:var(--s2);border:1px solid var(--border2);color:var(--muted2);cursor:pointer;font-family:'Bricolage Grotesque',sans-serif;transition:all .15s}
+.page-btn:hover{color:var(--text)}
+.page-btn.active{background:var(--accent);color:#07080d;border-color:transparent;font-weight:700}
+
+/* DETAIL PANEL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.detail-panel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--s1);border-left:1px solid var(--border2);z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.detail-panel.open{transform:translateX(0)}
+.dp-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:var(--s1);position:sticky;top:0;z-index:1}
+.dp-date{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.dp-close{width:30px;height:30px;background:var(--s2);border:1px solid var(--border2);border-radius:6px;color:var(--muted);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.dp-close:hover{color:var(--text);border-color:var(--border3)}
+.dp-body{padding:1rem 1.5rem 2rem;overflow-y:auto;flex:1}
+.ev-card{background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:10px;transition:border-color .15s}
+.ev-card:hover{border-color:var(--border2)}
+.ev-card-top{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.past-chip{font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(61,224,184,.1);color:var(--teal);border:1px solid rgba(61,224,184,.2);padding:2px 7px;border-radius:4px;letter-spacing:.08em}
+.ev-card-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.ev-card-desc{font-size:12px;color:var(--muted2);line-height:1.55;margin-bottom:10px}
+.ev-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;padding:10px 12px;background:var(--s1);border-radius:7px}
+.ev-meta-item{}
+.ev-meta-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.ev-meta-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--text)}
+.ev-meta-val.green{color:var(--green)}
+.links-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.link-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:6px;margin-bottom:3px;text-decoration:none;transition:all .15s}
+.link-row:hover{background:rgba(232,255,71,.04);border-color:rgba(232,255,71,.15)}
+.link-icon{width:22px;height:22px;border-radius:4px;background:var(--s3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted2);flex-shrink:0}
+.link-info{flex:1;min-width:0}
+.link-name{font-size:11px;font-weight:600;color:var(--text);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-url{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);display:block}
+.link-arr{color:var(--accent);font-size:11px;flex-shrink:0}
+
+/* LIVE PRICE in panel */
+.live-price{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(232,255,71,.05);border:1px solid rgba(232,255,71,.12);border-radius:7px;margin-bottom:10px}
+.live-sym{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--accent)}
+.live-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--text)}
+.live-chg{font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 6px;border-radius:4px}
+.live-chg.up{background:rgba(74,222,128,.12);color:var(--green)}
+.live-chg.dn{background:rgba(255,95,160,.12);color:var(--pink)}
+.live-label{font-size:10px;color:var(--muted);margin-left:auto}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(60px);background:var(--accent);color:#07080d;padding:9px 22px;border-radius:8px;font-size:13px;font-weight:700;z-index:500;pointer-events:none;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}}
+@media(max-width:600px){.cal-cell{min-height:72px;padding:5px}.ev-pill{font-size:8px}.main{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">
+    <div class="logo-title">Finanzas <span>PRO</span></div>
+    <div class="logo-tag">2026</div>
+  </div>
+  <div class="top-actions">
+    <div class="view-toggle">
+      <button class="vbtn active" id="vbtn-cal" onclick="setView('cal')">Calendario</button>
+      <button class="vbtn" id="vbtn-tbl" onclick="setView('tbl')">Tabla</button>
+    </div>
+    <button class="btn btn-accent" onclick="copyLink()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Compartir
+    </button>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div>
+    <div class="sidebar-label">Tipo de evento</div>
+    <div class="filter-group" id="filter-group"></div>
+  </div>
+  <div>
+    <div class="sidebar-label">Índice</div>
+    <div class="index-group" id="index-group"></div>
+  </div>
+  <div>
+    <div class="sidebar-label">Resumen</div>
+    <div class="stats-mini" id="stats-mini"></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TICKER STRIP -->
+  <div class="ticker-strip" id="ticker-strip">
+    <span class="ticker-loading">Cargando precios en tiempo real...</span>
+  </div>
+
+  <!-- AI BAR -->
+  <div class="ai-bar">
+    <div class="ai-bar-top">
+      <div class="ai-icon">✦</div>
+      <div class="ai-text-block">
+        <div class="ai-title">Asistente financiero con IA</div>
+        <div class="ai-sub">Preguntá por cualquier empresa · ej: "dividendos de AAPL" · "próximo earning de NVDA" · "balances del Merval" · "yield de KO"</div>
+      </div>
+    </div>
+    <div class="ai-input-row">
+      <input class="ai-inp" id="ai-inp" placeholder="Buscar empresa, dividendo, earning..." onkeydown="if(event.key==='Enter')runAI()">
+      <button class="btn btn-accent" onclick="runAI()">Buscar ↗</button>
+    </div>
+    <div class="ai-result" id="ai-result"></div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input placeholder="Filtrar por empresa o ticker..." oninput="filterBy(this.value)">
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg"><div class="leg-d" style="background:var(--c-earnings)"></div>Earnings</div>
+    <div class="leg"><div class="leg-d" style="background:var(--c-div)"></div>Dividendo</div>
+    <div class="leg"><div class="leg-d" style="background:var(--c-macro)"></div>Macro</div>
+    <div class="leg"><div class="leg-d" style="background:var(--c-fed)"></div>Fed/BCRA</div>
+    <div class="leg"><div class="leg-d" style="background:var(--c-vto)"></div>Vencimiento</div>
+    <div class="leg"><div class="leg-d" style="background:var(--c-idx)"></div>Índices</div>
+    <div class="leg"><div class="leg-d" style="background:var(--teal);border-radius:50%"></div>Pasado</div>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div id="view-cal">
+    <div class="month-nav">
+      <button class="mnav-btn" onclick="navMonth(-1)">&#8592;</button>
+      <div class="month-title" id="month-title"></div>
+      <button class="mnav-btn" onclick="navMonth(1)">&#8594;</button>
+      <button class="today-btn" onclick="goToday()">Hoy</button>
+    </div>
+    <div class="cal-wrap">
+      <div class="cal-head-row" id="cal-head"></div>
+      <div class="cal-body" id="cal-body"></div>
+    </div>
+  </div>
+
+  <!-- TABLE VIEW -->
+  <div id="view-tbl" style="display:none">
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th onclick="sortTable('date')">Fecha</th>
+            <th onclick="sortTable('name')">Empresa</th>
+            <th>Índice</th>
+            <th>Tipo</th>
+            <th onclick="sortTable('amount')">Dividendo</th>
+            <th onclick="sortTable('yield')">Yield</th>
+            <th>Fuente</th>
+          </tr></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <div class="page-info" id="page-info"></div>
+        <div class="page-btns" id="page-btns"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- OVERLAY + PANEL -->
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="dp-head">
+    <div class="dp-date" id="dp-date"></div>
+    <button class="dp-close" onclick="closePanel()">&#215;</button>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<div class="toast" id="toast">¡Enlace copiado!</div>
+
+<script>
+// ═══════════════════ DATA ═══════════════════
+
+const FIXED_EVENTS = {
+  "2026-01-13":[
+    {cat:"macro",idx:[],name:"IPC Argentina — Dic 2025",desc:"INDEC publica el IPC de diciembre 2025.",links:[{n:"INDEC IPC",u:"https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",l:"indec.gob.ar"}]},
+    {cat:"idx",idx:["sp","nq"],name:"Rebalanceo S&P 500 / Nasdaq",desc:"Revisión trimestral de componentes.",links:[{n:"S&P Dow Jones",u:"https://www.spglobal.com/spdji/en/",l:"spglobal.com"}]},
+  ],
+  "2026-01-27":[{cat:"fed",idx:[],name:"Inicio Reunión FOMC — Enero",desc:"Primera reunión del FOMC del año. Decisión el 29/1.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"}]}],
+  "2026-01-29":[{cat:"fed",idx:[],name:"Decisión FOMC + Powell",desc:"Anuncio de tasa de referencia y conferencia de prensa.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"},{n:"CME FedWatch",u:"https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html",l:"cmegroup.com"}]}],
+  "2026-02-04":[{cat:"macro",idx:[],name:"NFP EEUU — Enero 2026",desc:"Nóminas no agrícolas. Dato clave de empleo.",links:[{n:"BLS Employment",u:"https://www.bls.gov/news.release/empsit.toc.htm",l:"bls.gov"}]}],
+  "2026-02-10":[{cat:"macro",idx:[],name:"IPC EEUU — Enero 2026",desc:"Consumer Price Index de enero.",links:[{n:"BLS CPI",u:"https://www.bls.gov/news.release/cpi.toc.htm",l:"bls.gov"}]}],
+  "2026-02-11":[{cat:"macro",idx:[],name:"IPC Argentina — Ene 2026",desc:"INDEC publica el IPC de enero.",links:[{n:"INDEC IPC",u:"https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",l:"indec.gob.ar"},{n:"BCRA",u:"https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables.asp",l:"bcra.gob.ar"}]}],
+  "2026-02-26":[{cat:"macro",idx:[],name:"PCE EEUU — Enero 2026",desc:"Deflactor PCE — medida de inflación preferida de la Fed.",links:[{n:"BEA PCE",u:"https://www.bea.gov/data/personal-consumption-expenditures-price-index",l:"bea.gov"}]}],
+  "2026-03-04":[{cat:"macro",idx:[],name:"NFP EEUU — Feb 2026",desc:"Nóminas no agrícolas de febrero.",links:[{n:"BLS",u:"https://www.bls.gov/news.release/empsit.toc.htm",l:"bls.gov"}]}],
+  "2026-03-10":[
+    {cat:"macro",idx:[],name:"IPC EEUU — Feb 2026",desc:"CPI de febrero.",links:[{n:"BLS CPI",u:"https://www.bls.gov/news.release/cpi.toc.htm",l:"bls.gov"}]},
+    {cat:"macro",idx:[],name:"IPC Argentina — Feb 2026",desc:"INDEC publica el IPC de febrero.",links:[{n:"INDEC",u:"https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",l:"indec.gob.ar"}]},
+  ],
+  "2026-03-17":[{cat:"fed",idx:[],name:"Inicio FOMC — Marzo",desc:"Reunión con dot plot. Decisión el 18/3.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"}]}],
+  "2026-03-18":[{cat:"fed",idx:[],name:"Decisión Fed + Dot Plot",desc:"Tasas + Summary of Economic Projections.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"},{n:"CME FedWatch",u:"https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html",l:"cmegroup.com"}]}],
+  "2026-03-19":[{cat:"vto",idx:["sp","nq"],name:"Vencimiento Cuádruple — Marzo",desc:"Expiran futuros y opciones sobre índices y acciones. Alta volatilidad.",links:[{n:"CBOE Options",u:"https://www.cboe.com/tradable_products/sp_500/spx_options/",l:"cboe.com"}]}],
+  "2026-03-20":[{cat:"vto",idx:["mv"],name:"Amortización Bono AL30",desc:"Pago de cupón y amortización del AL30 argentino.",links:[{n:"Secretaría de Finanzas",u:"https://www.argentina.gob.ar/economia/finanzas/deudapublica",l:"argentina.gob.ar"}]}],
+  "2026-03-31":[
+    {cat:"macro",idx:[],name:"Cierre Q1 2026",desc:"Fin del primer trimestre. Rebalanceo masivo de portafolios.",links:[{n:"S&P Global",u:"https://www.spglobal.com/spdji/en/",l:"spglobal.com"}]},
+    {cat:"idx",idx:["sp","nq"],name:"Rebalanceo MSCI y Russell",desc:"Ajuste trimestral de índices.",links:[{n:"MSCI",u:"https://www.msci.com/index-methodology",l:"msci.com"}]},
+  ],
+  "2026-04-02":[{cat:"macro",idx:[],name:"NFP EEUU — Marzo 2026",desc:"Nóminas no agrícolas.",links:[{n:"BLS",u:"https://www.bls.gov/news.release/empsit.toc.htm",l:"bls.gov"}]}],
+  "2026-04-09":[{cat:"macro",idx:[],name:"IPC EEUU — Marzo 2026",desc:"CPI de marzo.",links:[{n:"BLS CPI",u:"https://www.bls.gov/news.release/cpi.toc.htm",l:"bls.gov"}]}],
+  "2026-04-15":[{cat:"vto",idx:[],name:"Tax Day EEUU",desc:"Vence presentación impuestos individuales (Form 1040).",links:[{n:"IRS",u:"https://www.irs.gov/filing/individuals/when-to-file",l:"irs.gov"}]}],
+  "2026-04-29":[{cat:"fed",idx:[],name:"Inicio FOMC — Abril",desc:"Reunión de política monetaria. Decisión el 30/4.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"}]}],
+  "2026-04-30":[{cat:"fed",idx:[],name:"Decisión FOMC — Abril",desc:"Anuncio de tasas. Conferencia de prensa.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"}]}],
+  "2026-05-07":[{cat:"macro",idx:[],name:"NFP EEUU — Abril 2026",desc:"Dato de empleo no agrícola.",links:[{n:"BLS",u:"https://www.bls.gov/news.release/empsit.toc.htm",l:"bls.gov"}]}],
+  "2026-05-13":[{cat:"macro",idx:[],name:"IPC EEUU — Abril 2026",desc:"CPI de abril.",links:[{n:"BLS CPI",u:"https://www.bls.gov/news.release/cpi.toc.htm",l:"bls.gov"}]}],
+  "2026-06-10":[{cat:"fed",idx:[],name:"Inicio FOMC — Junio",desc:"Reunión con dot plot semestral. Decisión el 11/6.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"}]}],
+  "2026-06-11":[{cat:"fed",idx:[],name:"Decisión Fed + Dot Plot Semestral",desc:"Tasas + SEP completo.",links:[{n:"Fed FOMC",u:"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",l:"federalreserve.gov"},{n:"CME FedWatch",u:"https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html",l:"cmegroup.com"}]}],
+  "2026-06-19":[{cat:"vto",idx:["sp","nq"],name:"Vencimiento Cuádruple — Junio",desc:"Segunda jornada cuádruple del año.",links:[{n:"CBOE",u:"https://www.cboe.com/",l:"cboe.com"}]}],
+  "2026-06-30":[
+    {cat:"macro",idx:[],name:"Cierre 1er Semestre 2026",desc:"Rebalanceo de cierre de semestre.",links:[{n:"S&P Global",u:"https://www.spglobal.com/spdji/en/",l:"spglobal.com"}]},
+    {cat:"vto",idx:["mv"],name:"Vencimiento Letras BCRA",desc:"Vencimiento instrumentos del BCRA.",links:[{n:"BCRA",u:"https://www.bcra.gob.ar/SistemasFinancierosYdePagos/Licitaciones.asp",l:"bcra.gob.ar"}]},
+  ],
+};
+
+// [ticker, name, indices, earningsDate, divPayDate, divAmt, divYield, irLink, divLink]
+const COMPANIES = [
+  ["AAPL","Apple Inc.",["sp","nq"],"2026-01-28","2026-02-13",0.25,0.52,"https://investor.apple.com/sec-filings/quarterly-earnings/default.aspx","https://investor.apple.com/stock-information/dividends/default.aspx"],
+  ["MSFT","Microsoft Corp.",["sp","nq"],"2026-01-29","2026-03-12",0.83,0.72,"https://www.microsoft.com/en-us/investor/","https://www.microsoft.com/en-us/investor/dividends.aspx"],
+  ["NVDA","NVIDIA Corp.",["sp","nq"],"2026-02-18","2026-04-03",0.01,0.03,"https://investor.nvidia.com/financial-info/quarterly-results/","https://investor.nvidia.com/financial-info/dividends/"],
+  ["META","Meta Platforms",["sp","nq"],"2026-01-28","2026-04-26",0.50,0.32,"https://investor.fb.com/financials/","https://investor.fb.com/financial-information/dividends/"],
+  ["AMZN","Amazon.com Inc.",["sp","nq"],"2026-01-30",null,null,null,"https://ir.aboutamazon.com/sec-filings/quarterly-earnings",null],
+  ["GOOGL","Alphabet Inc.",["sp","nq"],"2026-01-30","2026-03-17",0.20,0.47,"https://abc.xyz/investor/","https://abc.xyz/investor/"],
+  ["TSLA","Tesla Inc.",["sp","nq"],"2026-01-29",null,null,null,"https://ir.tesla.com/financial-information/quarterly-results",null],
+  ["AVGO","Broadcom Inc.",["sp","nq"],"2026-03-05","2026-03-31",0.59,1.12,"https://investors.broadcom.com/financial-information/quarterly-results","https://investors.broadcom.com/stock-information/dividends"],
+  ["ORCL","Oracle Corp.",["sp","nq"],"2026-03-11","2026-04-23",0.40,1.48,"https://investor.oracle.com/investor-relations/financial-information/quarterly-results/","https://investor.oracle.com/investor-relations/financial-information/dividends/"],
+  ["NFLX","Netflix Inc.",["sp","nq"],"2026-01-21",null,null,null,"https://ir.netflix.net/ir/doc/quarterly-earnings",null],
+  ["AMD","Advanced Micro Devices",["sp","nq"],"2026-02-04",null,null,null,"https://ir.amd.com/financial-info/sec-filings",null],
+  ["QCOM","Qualcomm Inc.",["sp","nq"],"2026-01-29","2026-03-26",0.89,2.01,"https://investor.qualcomm.com/financial-information/quarterly-results","https://investor.qualcomm.com/financial-information/dividends"],
+  ["INTC","Intel Corp.",["sp","nq"],"2026-01-22","2026-03-01",0.13,1.85,"https://www.intc.com/investor-relations/financials","https://www.intc.com/investor-relations/dividends-splits"],
+  ["CSCO","Cisco Systems",["sp","nq"],"2026-02-11","2026-04-23",0.41,2.88,"https://investor.cisco.com/financial-information/financial-results/","https://investor.cisco.com/financial-information/dividends/"],
+  ["TXN","Texas Instruments",["sp","nq"],"2026-01-21","2026-02-11",1.36,2.68,"https://investor.ti.com/sec.cfm","https://investor.ti.com/dividendsandsplits.cfm"],
+  ["JPM","JPMorgan Chase",["sp"],"2026-01-15","2026-04-30",1.25,2.12,"https://www.jpmorganchase.com/ir/quarterly-earnings","https://www.jpmorganchase.com/ir/stock-information/dividends-and-splits"],
+  ["GS","Goldman Sachs",["sp"],"2026-01-16","2026-03-26",3.00,2.18,"https://www.goldmansachs.com/investor-relations/financials/","https://www.goldmansachs.com/investor-relations/stock-information/dividends.html"],
+  ["BAC","Bank of America",["sp"],"2026-01-15","2026-03-28",0.26,2.34,"https://investor.bankofamerica.com/financial-information/quarterly-earnings","https://investor.bankofamerica.com/dividend-information"],
+  ["WFC","Wells Fargo",["sp"],"2026-01-15","2026-03-01",0.40,2.56,"https://www.wellsfargo.com/invest_relations/earnings/","https://www.wellsfargo.com/invest_relations/dividend/"],
+  ["C","Citigroup",["sp"],"2026-01-15","2026-02-28",0.56,3.45,"https://www.citigroup.com/global/investors/financial-data","https://www.citigroup.com/global/investors/financial-data/dividends"],
+  ["BLK","BlackRock",["sp"],"2026-01-16","2026-03-23",5.21,2.35,"https://ir.blackrock.com/financials/quarterly-earnings","https://ir.blackrock.com/financial-information/dividends"],
+  ["V","Visa Inc.",["sp","nq"],"2026-01-28","2026-03-03",0.59,0.74,"https://investor.visa.com/financial-information/quarterly-earnings/","https://investor.visa.com/stock-information/dividends/"],
+  ["MA","Mastercard",["sp","nq"],"2026-01-29","2026-02-09",0.76,0.56,"https://investor.mastercard.com/investor-relations/financial-information/quarterly-earnings","https://investor.mastercard.com/investor-relations/stock-information/dividends"],
+  ["JNJ","Johnson & Johnson",["sp"],"2026-01-22","2026-03-11",1.24,3.45,"https://investor.jnj.com/quarterly-earnings","https://investor.jnj.com/dividends.cfm"],
+  ["LLY","Eli Lilly",["sp"],"2026-02-05","2026-03-10",1.50,0.58,"https://investor.lilly.com/financial-information/quarterly-reports","https://investor.lilly.com/stock-information/dividends"],
+  ["PFE","Pfizer Inc.",["sp"],"2026-01-28","2026-03-04",0.43,6.52,"https://investors.pfizer.com/financial-information/quarterly-results/","https://investors.pfizer.com/stock-information/dividends/"],
+  ["ABBV","AbbVie Inc.",["sp"],"2026-02-04","2026-02-14",1.64,3.45,"https://investors.abbvie.com/financial-information/quarterly-results","https://investors.abbvie.com/stock-information/dividends"],
+  ["MRK","Merck & Co.",["sp"],"2026-02-04","2026-04-08",0.77,3.21,"https://www.merck.com/investor-relations/financials/","https://www.merck.com/investor-relations/dividends.html"],
+  ["WMT","Walmart Inc.",["sp"],"2026-02-17","2026-04-07",0.235,1.12,"https://stock.walmart.com/financial-information/quarterly-results","https://stock.walmart.com/financial-information/dividends"],
+  ["COST","Costco Wholesale",["sp","nq"],"2026-03-05","2026-02-20",1.16,0.52,"https://ir.costco.com/financial-information/quarterly-earnings","https://ir.costco.com/stock-information/dividends"],
+  ["HD","Home Depot",["sp"],"2026-02-18","2026-03-27",2.25,2.44,"https://ir.homedepot.com/financial-information/quarterly-results","https://ir.homedepot.com/financial-information/dividends"],
+  ["MCD","McDonald's Corp.",["sp"],"2026-01-29","2026-03-17",1.77,2.31,"https://corporate.mcdonalds.com/corpmcd/investors.html","https://corporate.mcdonalds.com/corpmcd/investors/stock-information/dividends.html"],
+  ["NKE","Nike Inc.",["sp"],"2026-03-25","2026-04-01",0.37,1.98,"https://investors.nike.com/investors/financial-information/quarterly-earnings/","https://investors.nike.com/investors/financial-information/dividends/"],
+  ["KO","Coca-Cola Co.",["sp"],"2026-02-12","2026-04-01",0.485,3.02,"https://investors.coca-colacompany.com/financial-information/quarterly-results","https://investors.coca-colacompany.com/financial-information/dividends"],
+  ["PEP","PepsiCo Inc.",["sp","nq"],"2026-02-04","2026-04-03",1.355,3.54,"https://www.pepsico.com/investors/financial-information/quarterly-earnings","https://www.pepsico.com/investors/financial-information/dividends"],
+  ["PG","Procter & Gamble",["sp"],"2026-01-21","2026-02-14",1.006,2.31,"https://pginvestor.com/financial-reporting/quarterly-earnings","https://pginvestor.com/stock/dividends"],
+  ["XOM","Exxon Mobil",["sp"],"2026-01-31","2026-03-10",0.99,3.78,"https://investor.exxonmobil.com/financial-results/quarterly-earnings/","https://investor.exxonmobil.com/stock-information/dividends/"],
+  ["CVX","Chevron Corp.",["sp"],"2026-01-31","2026-03-10",1.71,4.12,"https://www.chevron.com/investors/press-releases","https://www.chevron.com/investors/dividends-buybacks"],
+  ["CAT","Caterpillar Inc.",["sp"],"2026-01-28","2026-02-20",1.41,1.44,"https://investors.caterpillar.com/financial-information/quarterly-results","https://investors.caterpillar.com/financial-information/dividends"],
+  ["T","AT&T Inc.",["sp"],"2026-01-22","2026-02-03",0.2775,5.12,"https://investors.att.com/financial-results/quarterly-earnings","https://investors.att.com/stock-and-dividends/dividend-information"],
+  ["VZ","Verizon Comms.",["sp"],"2026-01-27","2026-02-03",0.6775,6.78,"https://www.verizon.com/about/investors/quarterly-reports","https://www.verizon.com/about/investors/dividends"],
+  ["HON","Honeywell Int.",["sp","nq"],"2026-01-29","2026-03-06",1.13,2.22,"https://investor.honeywell.com/financial-information/quarterly-results","https://investor.honeywell.com/financial-information/dividends"],
+  ["NEE","NextEra Energy",["sp"],"2026-01-24","2026-03-16",0.515,2.88,"https://www.nexteraenergy.com/investors.html","https://www.nexteraenergy.com/investors/dividends.html"],
+  ["ISRG","Intuitive Surgical",["sp","nq"],"2026-01-22",null,null,null,"https://isrg.com/investors",null],
+  ["PANW","Palo Alto Networks",["sp","nq"],"2026-02-11",null,null,null,"https://investors.paloaltonetworks.com/financial-information/quarterly-results",null],
+  ["CRWD","CrowdStrike",["sp","nq"],"2026-03-04",null,null,null,"https://ir.crowdstrike.com/financial-information/quarterly-results",null],
+  ["MELI","MercadoLibre",["nq"],"2026-02-26",null,null,null,"https://investor.mercadolibre.com/investor-relations",null],
+  ["BKNG","Booking Holdings",["sp","nq"],"2026-02-25","2026-04-02",9.60,1.02,"https://ir.bookingholdings.com/financial-information/quarterly-results","https://ir.bookingholdings.com/financial-information/dividends"],
+  ["UBER","Uber Technologies",["sp","nq"],"2026-02-05",null,null,null,"https://investor.uber.com/financial-information/quarterly-results",null],
+  ["PLTR","Palantir Tech.",["sp","nq"],"2026-02-03",null,null,null,"https://investors.palantir.com/financial-information/quarterly-results",null],
+  ["COIN","Coinbase",["nq"],"2026-02-11",null,null,null,"https://investor.coinbase.com/financial-information/quarterly-results",null],
+  ["SHOP","Shopify Inc.",["nq"],"2026-02-11",null,null,null,"https://investors.shopify.com/financial-information/quarterly-results",null],
+  // MERVAL
+  ["GGAL","Grupo Galicia",["mv"],"2026-03-15","2026-04-20",null,null,"https://www.grupogalicia.com.ar/inversores","https://www.grupogalicia.com.ar/inversores/accionistas"],
+  ["BMA","Banco Macro",["mv"],"2026-03-20","2026-05-10",null,null,"https://www.macro.com.ar/inversores","https://www.macro.com.ar/inversores"],
+  ["BBAR","BBVA Argentina",["mv"],"2026-03-18","2026-04-15",null,null,"https://www.bbva.com.ar/personas/inversores.html","https://www.bbva.com.ar/personas/inversores/dividendos.html"],
+  ["TXAR","Ternium Argentina",["mv"],"2026-03-10","2026-05-20",null,null,"https://investors.ternium.com","https://investors.ternium.com/dividends"],
+  ["ALUA","Aluar Aluminio",["mv"],"2026-03-15","2026-06-01",null,null,"https://www.aluar.com.ar/inversores","https://www.aluar.com.ar/inversores/dividendos"],
+  ["PAMP","Pampa Energía",["mv"],"2026-03-20","2026-05-15",null,null,"https://www.pampaenergia.com/ir","https://www.pampaenergia.com/ir/dividends"],
+  ["YPF","YPF S.A.",["mv"],"2026-03-25",null,null,null,"https://www.ypf.com/YPFei/Pages/Resultados.aspx",null],
+  ["CEPU","Central Puerto",["mv"],"2026-03-12","2026-04-30",null,null,"https://www.centralpuerto.com/inversores","https://www.centralpuerto.com/inversores/dividendos"],
+  ["TECO2","Telecom Argentina",["mv"],"2026-03-18","2026-05-25",null,null,"https://www.telecom.com.ar/inversores","https://www.telecom.com.ar/inversores/dividendos"],
+  ["EDN","Edenor",["mv"],"2026-03-22",null,null,null,"https://inversores.edenor.com",null],
+  ["LOMA","Loma Negra",["mv"],"2026-03-18","2026-05-20",null,null,"https://inversores.lomanegra.com.ar","https://inversores.lomanegra.com.ar/dividendos"],
+  ["CRES","Cresud S.A.",["mv"],"2026-03-10","2026-05-01",null,null,"https://www.cresud.com.ar/inversores","https://www.cresud.com.ar/inversores"],
+  ["IRSA","IRSA Inversiones",["mv"],"2026-03-14","2026-05-10",null,null,"https://ri.irsa.com.ar","https://ri.irsa.com.ar"],
+  ["SUPV","Grupo Supervielle",["mv"],"2026-03-25",null,null,null,"https://ri.supervielle.com",null],
+];
+
+// Tickers for live price strip (most liquid)
+const STRIP_TICKERS = ["AAPL","MSFT","NVDA","META","AMZN","GOOGL","TSLA","JPM","GS","V","NFLX","AMD"];
+
+// ═══════════════════ STATE ═══════════════════
+const TODAY = new Date();
+let curY=2026, curM=0, curView='cal';
+let activeCats = new Set(['earnings','div','macro','fed','vto','idx']);
+let activeIdxs = new Set(['sp','nq','mv']);
+let searchQ='', sortCol='date', sortDir=1, pg=1;
+const PER_PAGE=30;
+const MES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const DIAS=["LUN","MAR","MIÉ","JUE","VIE","SÁB","DOM"];
+const CATNAMES={earnings:"Earnings",div:"Dividendo",macro:"Macro",fed:"Fed/BCRA",vto:"Vencimiento",idx:"Índices"};
+const IDXNAMES={sp:"S&P 500",nq:"NASDAQ 100",mv:"Merval"};
+
+// ═══════════════════ BUILD EVENTS ═══════════════════
+const COMP_EVENTS={};
+COMPANIES.forEach(([tk,nm,idxs,eDate,dDate,dAmt,dYield,irLink,dvLink])=>{
+  if(eDate){
+    if(!COMP_EVENTS[eDate]) COMP_EVENTS[eDate]=[];
+    COMP_EVENTS[eDate].push({cat:'earnings',idx:idxs,name:`${tk} — ${nm}`,desc:`Balance trimestral de ${nm}.`,ticker:tk,divAmt:null,divYield:null,links:irLink?[{n:`IR ${tk}`,u:irLink,l:'Investor Relations'}]:[]});
+  }
+  if(dDate){
+    if(!COMP_EVENTS[dDate]) COMP_EVENTS[dDate]=[];
+    COMP_EVENTS[dDate].push({cat:'div',idx:idxs,name:`Dividendo ${tk}`,desc:`${nm} paga su dividendo trimestral.`,ticker:tk,divAmt:dAmt,divYield:dYield,links:dvLink?[{n:`Dividendos ${tk}`,u:dvLink,l:'Dividends page'}]:[]});
+  }
+});
+
+function getEvs(key){
+  const f=(FIXED_EVENTS[key]||[]).map(e=>({...e,ticker:null,divAmt:null,divYield:null}));
+  return [...f,...(COMP_EVENTS[key]||[])];
+}
+
+// ═══════════════════ UTILS ═══════════════════
+const p2=n=>String(n).padStart(2,'0');
+const dk=(y,m,d)=>`${y}-${p2(m+1)}-${p2(d)}`;
+const isToday=(y,m,d)=>y===TODAY.getFullYear()&&m===TODAY.getMonth()&&d===TODAY.getDate();
+const isPast=(y,m,d)=>new Date(y,m,d)<new Date(TODAY.getFullYear(),TODAY.getMonth(),TODAY.getDate());
+const passF=e=>activeCats.has(e.cat)&&(e.idx.length===0||e.idx.some(i=>activeIdxs.has(i)));
+
+// ═══════════════════ LIVE PRICES ═══════════════════
+async function loadTickerStrip(){
+  const strip=document.getElementById('ticker-strip');
+  try{
+    const results=await Promise.allSettled(
+      STRIP_TICKERS.map(t=>fetch(`/api/quote?ticker=${t}`).then(r=>r.json()))
+    );
+    strip.innerHTML='';
+    results.forEach((r,i)=>{
+      if(r.status==='fulfilled'&&r.value.price){
+        const d=r.value;
+        const chg=d.price-d.prevClose;
+        const chgPct=((chg/d.prevClose)*100).toFixed(2);
+        const up=chg>=0;
+        const el=document.createElement('div');
+        el.className='ticker-item';
+        el.innerHTML=`<span class="ticker-sym">${STRIP_TICKERS[i]}</span><span class="ticker-price">${d.currency==='USD'?'$':''}${d.price.toFixed(2)}</span><span class="ticker-chg ${up?'up':'dn'}">${up?'+':''}${chgPct}%</span>`;
+        strip.appendChild(el);
+      }
+    });
+    if(!strip.children.length) strip.innerHTML='<span class="ticker-loading">Precios no disponibles en este momento</span>';
+  }catch(e){
+    strip.innerHTML='<span class="ticker-loading">Precios no disponibles</span>';
+  }
+}
+
+// ═══════════════════ LIVE PRICE IN PANEL ═══════════════════
+async function loadLivePrice(ticker, container){
+  try{
+    const r=await fetch(`/api/quote?ticker=${ticker}`);
+    const d=await r.json();
+    if(d.price){
+      const chg=d.price-d.prevClose;
+      const chgPct=((chg/d.prevClose)*100).toFixed(2);
+      const up=chg>=0;
+      container.innerHTML=`
+        <div class="live-price">
+          <span class="live-sym">${ticker}</span>
+          <span class="live-val">$${d.price.toFixed(2)}</span>
+          <span class="live-chg ${up?'up':'dn'}">${up?'+':''}${chgPct}%</span>
+          <span class="live-label">Precio actual · ${d.exchange}</span>
+        </div>`;
+    }
+  }catch(e){}
+}
+
+// ═══════════════════ SIDEBAR ═══════════════════
+function buildSidebar(){
+  const cats=[
+    {k:'earnings',l:'Earnings',c:'var(--c-earnings)'},
+    {k:'div',l:'Dividendos',c:'var(--c-div)',round:true},
+    {k:'macro',l:'Macro',c:'var(--c-macro)'},
+    {k:'fed',l:'Fed / BCRA',c:'var(--c-fed)'},
+    {k:'vto',l:'Vencimientos',c:'var(--c-vto)'},
+    {k:'idx',l:'Índices',c:'var(--c-idx)'},
+  ];
+  const allEvs=[...Object.values(FIXED_EVENTS).flat(),...Object.values(COMP_EVENTS).flat()];
+  const fg=document.getElementById('filter-group');
+  cats.forEach(({k,l,c,round})=>{
+    const cnt=allEvs.filter(e=>e.cat===k).length;
+    const el=document.createElement('div');
+    el.className='filter-item active';
+    el.innerHTML=`<div class="filter-dot${round?' style=border-radius:50%':''}" style="background:${c}${round?';border-radius:50%':''}"></div>${l}<span class="filter-count">${cnt}</span>`;
+    el.onclick=()=>{ activeCats.has(k)?activeCats.delete(k):activeCats.add(k); el.classList.toggle('active',activeCats.has(k)); render(); };
+    fg.appendChild(el);
+  });
+
+  const ig=document.getElementById('index-group');
+  [{k:'sp',l:'S&P 500',cls:'sp'},{k:'nq',l:'NASDAQ 100',cls:'nq'},{k:'mv',l:'Merval',cls:'mv'}].forEach(({k,l,cls})=>{
+    const cnt=COMPANIES.filter(c=>c[2].includes(k)).length;
+    const el=document.createElement('div');
+    el.className='index-item active';
+    el.innerHTML=`<span class="idx-badge badge-${cls}">${l.split(' ')[0]}</span>${l}<span class="filter-count" style="margin-left:auto">${cnt}</span>`;
+    el.onclick=()=>{ activeIdxs.has(k)?activeIdxs.delete(k):activeIdxs.add(k); el.classList.toggle('active',activeIdxs.has(k)); render(); };
+    ig.appendChild(el);
+  });
+
+  const sm=document.getElementById('stats-mini');
+  [{l:'Empresas',v:COMPANIES.length},{l:'Con earnings',v:COMPANIES.filter(c=>c[3]).length},{l:'Con dividendos',v:COMPANIES.filter(c=>c[4]).length},{l:'Eventos macro/fed',v:Object.values(FIXED_EVENTS).flat().length}]
+    .forEach(({l,v})=>{ sm.innerHTML+=`<div class="stat-row"><span class="stat-row-label">${l}</span><span class="stat-row-val">${v}</span></div>`; });
+}
+
+// ═══════════════════ CALENDAR ═══════════════════
+function renderCal(){
+  document.getElementById('month-title').textContent=`${MES[curM]} ${curY}`;
+  const head=document.getElementById('cal-head'); head.innerHTML='';
+  DIAS.forEach(d=>{ const el=document.createElement('div');el.className='cal-day-head';el.textContent=d;head.appendChild(el); });
+
+  const body=document.getElementById('cal-body'); body.innerHTML='';
+  const firstDow=new Date(curY,curM,1).getDay();
+  const offset=firstDow===0?6:firstDow-1;
+  const days=new Date(curY,curM+1,0).getDate();
+
+  for(let i=0;i<offset;i++){ const e=document.createElement('div');e.className='cal-cell empty';body.appendChild(e); }
+  for(let d=1;d<=days;d++){
+    const cell=document.createElement('div');
+    const dow=new Date(curY,curM,d).getDay();
+    const key=dk(curY,curM,d);
+    const evs=getEvs(key).filter(passF);
+    const cls=['cal-cell'];
+    if(dow===0||dow===6) cls.push('weekend');
+    if(isToday(curY,curM,d)) cls.push('today');
+    if(isPast(curY,curM,d)) cls.push('past');
+    if(evs.length) cls.push('has-ev');
+    cell.className=cls.join(' ');
+
+    const top=document.createElement('div');top.className='day-top';
+    const num=document.createElement('div');num.className='day-n';num.textContent=d;
+    const dot=document.createElement('div');dot.className='past-ind';
+    top.appendChild(num);top.appendChild(dot);cell.appendChild(top);
+
+    if(evs.length){
+      const pp=document.createElement('div');pp.className='ev-pills';
+      evs.slice(0,3).forEach(ev=>{ const p=document.createElement('div');p.className=`ev-pill ${ev.cat}`;p.textContent=ev.name;pp.appendChild(p); });
+      if(evs.length>3){ const m=document.createElement('div');m.className='more-ev';m.textContent=`+${evs.length-3} más`;pp.appendChild(m); }
+      cell.appendChild(pp);
+      cell.addEventListener('click',()=>openPanel(d,evs));
+    }
+    body.appendChild(cell);
+  }
+}
+
+// ═══════════════════ TABLE ═══════════════════
+function getRows(){
+  const rows=[];
+  COMPANIES.forEach(([tk,nm,idxs,eDate,dDate,dAmt,dYield,irLink,dvLink])=>{
+    if(eDate&&idxs.some(i=>activeIdxs.has(i))&&activeCats.has('earnings')){
+      const [y,m,d]=eDate.split('-').map(Number);
+      rows.push({date:eDate,name:nm,ticker:tk,idxs,cat:'earnings',divAmt:null,divYield:null,link:irLink,past:isPast(y,m-1,d)});
+    }
+    if(dDate&&idxs.some(i=>activeIdxs.has(i))&&activeCats.has('div')){
+      const [y,m,d]=dDate.split('-').map(Number);
+      rows.push({date:dDate,name:nm,ticker:tk,idxs,cat:'div',divAmt:dAmt,divYield:dYield,link:dvLink,past:isPast(y,m-1,d)});
+    }
+  });
+  Object.entries(FIXED_EVENTS).forEach(([date,evs])=>{
+    evs.forEach(ev=>{
+      if(!activeCats.has(ev.cat)) return;
+      if(ev.idx.length>0&&!ev.idx.some(i=>activeIdxs.has(i))) return;
+      const [y,m,d]=date.split('-').map(Number);
+      rows.push({date,name:ev.name,ticker:null,idxs:ev.idx,cat:ev.cat,divAmt:null,divYield:null,link:ev.links[0]?.u||null,past:isPast(y,m-1,d)});
+    });
+  });
+  if(searchQ){
+    const q=searchQ.toLowerCase();
+    return rows.filter(r=>r.name.toLowerCase().includes(q)||(r.ticker&&r.ticker.toLowerCase().includes(q)));
+  }
+  return rows;
+}
+
+function sortRows(rows){
+  return [...rows].sort((a,b)=>{
+    let av,bv;
+    if(sortCol==='date'){av=a.date;bv=b.date;}
+    else if(sortCol==='name'){av=a.name;bv=b.name;}
+    else if(sortCol==='amount'){av=a.divAmt||0;bv=b.divAmt||0;}
+    else{av=a.divYield||0;bv=b.divYield||0;}
+    return av<bv?-sortDir:av>bv?sortDir:0;
+  });
+}
+
+function renderTable(){
+  const rows=sortRows(getRows());
+  const total=rows.length;
+  const pages=Math.ceil(total/PER_PAGE)||1;
+  if(pg>pages) pg=1;
+  const slice=rows.slice((pg-1)*PER_PAGE,pg*PER_PAGE);
+
+  const tbody=document.getElementById('table-body');tbody.innerHTML='';
+  slice.forEach(r=>{
+    const [y,m,d]=r.date.split('-').map(Number);
+    const ds=`${p2(d)}/${p2(m)}/${y}`;
+    const idxTags=r.idxs.map(i=>`<span class="idx-tag ${i}">${i.toUpperCase()}</span>`).join('');
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="td-date${r.past?' past':''}">${ds}${r.past?' ✓':''}</td><td><div class="td-company">${r.name}</div>${r.ticker?`<div class="td-ticker">${r.ticker}</div>`:''}</td><td>${idxTags||'—'}</td><td><span class="cat-tag ${r.cat}">${CATNAMES[r.cat]||r.cat}</span></td><td class="td-amount">${r.divAmt!=null?'$'+r.divAmt.toFixed(2):'—'}</td><td class="td-yield">${r.divYield!=null?r.divYield.toFixed(2)+'%':'—'}</td><td>${r.link?`<a href="${r.link}" target="_blank" rel="noopener" style="color:var(--blue);font-size:11px;text-decoration:none">Ver →</a>`:'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('page-info').textContent=`${(pg-1)*PER_PAGE+1}–${Math.min(pg*PER_PAGE,total)} de ${total} eventos`;
+  const pb=document.getElementById('page-btns');pb.innerHTML='';
+  const range=[];
+  for(let i=Math.max(1,pg-2);i<=Math.min(pages,pg+2);i++) range.push(i);
+  if(range[0]>1){const b=document.createElement('button');b.className='page-btn';b.textContent='1';b.onclick=()=>{pg=1;renderTable()};pb.appendChild(b);}
+  range.forEach(p2v=>{const b=document.createElement('button');b.className=`page-btn${p2v===pg?' active':''}`;b.textContent=p2v;b.onclick=()=>{pg=p2v;renderTable()};pb.appendChild(b);});
+  if(range[range.length-1]<pages){const b=document.createElement('button');b.className='page-btn';b.textContent=pages;b.onclick=()=>{pg=pages;renderTable()};pb.appendChild(b);}
+}
+
+// ═══════════════════ PANEL ═══════════════════
+function openPanel(day,evs){
+  const past=isPast(curY,curM,day);
+  document.getElementById('dp-date').textContent=`${day} de ${MES[curM]} ${curY}`;
+  const body=document.getElementById('dp-body');body.innerHTML='';
+
+  evs.forEach(ev=>{
+    const card=document.createElement('div');card.className='ev-card';
+    const top=document.createElement('div');top.className='ev-card-top';
+    top.innerHTML=`<span class="cat-tag ${ev.cat}">${CATNAMES[ev.cat]||ev.cat}</span>${ev.idx.map(i=>`<span class="idx-tag ${i}">${IDXNAMES[i]}</span>`).join('')}${past?'<span class="past-chip">✓ ocurrido</span>':''}`;
+    card.appendChild(top);
+
+    // Live price for stock events
+    if(ev.ticker&&['earnings','div'].includes(ev.cat)){
+      const lp=document.createElement('div');lp.id=`lp-${ev.ticker}`;card.appendChild(lp);
+      loadLivePrice(ev.ticker,lp);
+    }
+
+    const nm=document.createElement('div');nm.className='ev-card-name';nm.textContent=ev.name;card.appendChild(nm);
+    const ds=document.createElement('div');ds.className='ev-card-desc';ds.textContent=ev.desc;card.appendChild(ds);
+
+    const meta=[];
+    if(ev.divAmt!=null) meta.push({l:'Dividendo',v:'$'+ev.divAmt.toFixed(2),g:true});
+    if(ev.divYield!=null) meta.push({l:'Yield anual',v:ev.divYield.toFixed(2)+'%',g:false});
+    if(ev.ticker) meta.push({l:'Ticker',v:ev.ticker,g:false});
+    if(meta.length){
+      const mw=document.createElement('div');mw.className='ev-meta';
+      meta.forEach(m=>{mw.innerHTML+=`<div class="ev-meta-item"><div class="ev-meta-label">${m.l}</div><div class="ev-meta-val${m.g?' green':''}">${m.v}</div></div>`;});
+      card.appendChild(mw);
+    }
+
+    if(ev.links?.length){
+      const lh=document.createElement('div');lh.className='links-label';lh.textContent=past?'Datos oficiales':'Fuentes oficiales';card.appendChild(lh);
+      ev.links.forEach(lk=>{
+        const a=document.createElement('a');a.href=lk.u;a.target='_blank';a.rel='noopener';a.className='link-row';
+        a.innerHTML=`<div class="link-icon">↗</div><div class="link-info"><span class="link-name">${lk.n}</span><span class="link-url">${lk.l}</span></div><span class="link-arr">→</span>`;
+        card.appendChild(a);
+      });
+    }
+    body.appendChild(card);
+  });
+
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+// ═══════════════════ AI SEARCH ═══════════════════
+async function runAI(){
+  const q=document.getElementById('ai-inp').value.trim();
+  if(!q) return;
+  const res=document.getElementById('ai-result');
+  res.className='ai-result show loading';
+  res.innerHTML='✦ Consultando asistente financiero...';
+
+  try{
+    const r=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||`Error ${r.status}`);
+    res.className='ai-result show';
+    res.innerHTML=data.result||'Sin resultados. Intentá con otro término.';
+  }catch(e){
+    res.className='ai-result show';
+    res.innerHTML=`<span style="color:var(--pink)"><strong>Error:</strong> ${e.message}</span>`;
+  }
+}
+
+// ═══════════════════ CONTROLS ═══════════════════
+function setView(v){
+  curView=v;
+  document.getElementById('view-cal').style.display=v==='cal'?'block':'none';
+  document.getElementById('view-tbl').style.display=v==='tbl'?'block':'none';
+  document.getElementById('vbtn-cal').classList.toggle('active',v==='cal');
+  document.getElementById('vbtn-tbl').classList.toggle('active',v==='tbl');
+  render();
+}
+function navMonth(d){curM+=d;if(curM>11){curM=0;curY++}if(curM<0){curM=11;curY--}renderCal();}
+function goToday(){curY=TODAY.getFullYear();curM=TODAY.getMonth();renderCal();}
+function filterBy(v){searchQ=v;pg=1;renderTable();}
+function sortTable(col){sortCol===col?sortDir*=-1:(sortCol=col,sortDir=1);renderTable();}
+function render(){curView==='cal'?renderCal():renderTable();}
+function copyLink(){navigator.clipboard.writeText(window.location.href).catch(()=>{});const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// INIT
+buildSidebar();
+renderCal();
+loadTickerStrip();
+</script>
+</body>
+</html>
